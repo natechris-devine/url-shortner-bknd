@@ -21,6 +21,12 @@ app.use(bodyParser.json());
 
 app.listen(port, () => console.log(`listening port ${port}`));
 
+
+/* API Endpoints */
+
+/**
+ * Endpoint takes a URL and returns a shortURL for it
+ */
 app.post("/url", async (req, res) => {
     try {
         if (!!urlServices.validateUrl(req.body.url))
@@ -33,5 +39,18 @@ app.post("/url", async (req, res) => {
         return res.status(200).send({ shortUrl });
     } catch (error) {
         return res.status(500).send({ msg: "Something went wrong. Please try again."});
+    }
+});
+
+/**
+ * Endpoint gets short URL and redirects to corresponding long URL
+ */
+app.get("/:shortUrlId", async (req, res) => {
+    try {
+        const url = await urlDb.find(req.params.shortUrlId);
+        return !url ? res.status(404).send("Not found") : res.redirect(301, url.longURL);
+
+    } catch (error) {
+        return res.status(500).send("Something went wrong. Please try again.")
     }
 });
